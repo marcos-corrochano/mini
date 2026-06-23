@@ -1,0 +1,15 @@
+# binaries
+*.exe
+
+# source files
+*.probe
+*.mini
+
+# editors
+.vscode/
+.idea/
+
+# temp files
+*.tmp
+*.temp
+*.log
