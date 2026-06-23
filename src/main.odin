@@ -2,7 +2,6 @@ package main
 
 import "core:fmt"
 import "core:os"
-import "core:strings"
 import "core:unicode"
 
 Token :: struct {
@@ -43,7 +42,7 @@ main :: proc() {
 		}
 
 		switch {
-		case unicode.is_letter(char):
+		case unicode.is_letter(char), char == '_':
 			append(&tokens, literal())
 		case unicode.is_number(char):
 			append(&tokens, number())
@@ -81,27 +80,18 @@ done :: proc() -> bool {
 
 tok :: proc(type: string) -> Token {
 	lexeme := lexer.source[lexer.start:lexer.offset]
-
-	if strings.ends_with(lexeme, "_") {
-		fmt.println("Token value cannot end with _")
-		os.exit(1)
-	}
-
 	return Token{type = type, value = lexeme}
 }
 
 is_utf8 :: proc(char: rune) -> bool {
-	return !(char > unicode.MAX_ASCII)
+	return char <= unicode.MAX_ASCII
 }
-
 
 literal :: proc() -> Token {
 	next(); for !done() {
 		char := peek()
 		if !is_utf8(char) do break
-		if !unicode.is_letter(char) do break
-		if !unicode.is_number(char) do break
-		if char != '_' do break
+		if !unicode.is_letter(char) && !unicode.is_number(char) && char != '_' do break
 		next()
 	}
 
@@ -112,6 +102,12 @@ number :: proc() -> Token {
 	next(); for !done() {
 		char := peek()
 		if !is_utf8(char) do break
+
+		if char == '.' {
+			next()
+			continue
+		}
+
 		if !unicode.is_number(char) do break
 		next()
 	}
