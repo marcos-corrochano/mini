@@ -2,6 +2,7 @@ package main
 
 import "core:fmt"
 import "core:os"
+import "core:strings"
 import "core:unicode"
 
 Token :: struct {
@@ -12,7 +13,6 @@ Token :: struct {
 Lexer :: struct {
 	source: string,
 	start:  int, // Where the token starts
-	end:    int, // Where the token ends
 	column: int,
 	line:   int,
 	offset: int,
@@ -42,18 +42,18 @@ main :: proc() {
 			continue
 		}
 
-		switch char {
-		case 'a' ..= 'z', 'A' ..= 'Z', '_':
-			fmt.println("Is a letter!")
-			next()
-		case '1' ..= '9':
-			fmt.println("Is a number!")
-			next()
+		switch {
+		case unicode.is_letter(char):
+			append(&tokens, literal())
+		case unicode.is_number(char):
+			append(&tokens, number())
 		case:
-			fmt.println("Invalid character!")
+			fmt.println("Unhandled character '%s'", char)
 			os.exit(1)
 		}
 	}
+
+	for token in tokens do fmt.println(token)
 }
 
 peek :: proc() -> rune {
@@ -80,10 +80,41 @@ done :: proc() -> bool {
 }
 
 tok :: proc(type: string) -> Token {
-	lexeme := lexer.source[lexer.start:lexer.end]
+	lexeme := lexer.source[lexer.start:lexer.offset]
+
+	if strings.ends_with(lexeme, "_") {
+		fmt.println("Token value cannot end with _")
+		os.exit(1)
+	}
+
 	return Token{type = type, value = lexeme}
 }
 
 is_utf8 :: proc(char: rune) -> bool {
 	return !(char > unicode.MAX_ASCII)
+}
+
+
+literal :: proc() -> Token {
+	next(); for !done() {
+		char := peek()
+		if !is_utf8(char) do break
+		if !unicode.is_letter(char) do break
+		if !unicode.is_number(char) do break
+		if char != '_' do break
+		next()
+	}
+
+	return tok(".Literal")
+}
+
+number :: proc() -> Token {
+	next(); for !done() {
+		char := peek()
+		if !is_utf8(char) do break
+		if !unicode.is_number(char) do break
+		next()
+	}
+
+	return tok(".Number")
 }
