@@ -1,7 +1,89 @@
 package main
 
 import "core:fmt"
+import "core:os"
+import "core:unicode"
+
+Token :: struct {
+	type:  string,
+	value: Maybe(string),
+}
+
+Lexer :: struct {
+	source: string,
+	start:  int, // Where the token starts
+	end:    int, // Where the token ends
+	column: int,
+	line:   int,
+	offset: int,
+}
+
+lexer: Lexer
 
 main :: proc() {
-	fmt.println("mini!")
+	data, ok := os.read_entire_file("main.mini", context.allocator)
+	if ok != nil do panic("Error while reading mini file!")
+
+	lexer.source = string(data)
+	lexer.line = 1
+	tokens := make([dynamic]Token)
+
+	for !done() {
+		char := peek()
+		lexer.start = lexer.offset
+
+		if !is_utf8(char) {
+			fmt.println("Invalid character!")
+			os.exit(1)
+		}
+
+		if unicode.is_space(char) {
+			next()
+			continue
+		}
+
+		switch char {
+		case 'a' ..= 'z', 'A' ..= 'Z', '_':
+			fmt.println("Is a letter!")
+			next()
+		case '1' ..= '9':
+			fmt.println("Is a number!")
+			next()
+		case:
+			fmt.println("Invalid character!")
+			os.exit(1)
+		}
+	}
+}
+
+peek :: proc() -> rune {
+	if done() do return -1
+	return rune(lexer.source[lexer.offset])
+}
+
+next :: proc() -> rune {
+	if done() do return -1
+	current := lexer.source[lexer.offset]
+
+	if current == '\n' {
+		lexer.column = 0
+		lexer.line += 1
+	}
+
+	lexer.column += 1
+	lexer.offset += 1
+	return rune(current)
+}
+
+done :: proc() -> bool {
+	return lexer.offset >= len(lexer.source)
+}
+
+tok :: proc(type: string) -> Token {
+	lexeme := lexer.source[lexer.start:lexer.end]
+	return Token{type = type, value = lexeme}
+}
+
+is_utf8 :: proc(char: rune) -> bool {
+	return !(char > unicode.MAX_ASCII)
 }
