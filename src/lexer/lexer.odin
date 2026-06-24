@@ -20,12 +20,12 @@ init :: proc(source: string) {
 }
 
 peek :: proc() -> rune {
-	if is_done() do return -1
+	if is_done() do return 0
 	return rune(lexer.source[lexer.offset])
 }
 
 next :: proc() -> rune {
-	if is_done() do return -1
+	if is_done() do return 0
 	current := lexer.source[lexer.offset]
 
 	if current == '\n' {
@@ -38,7 +38,7 @@ next :: proc() -> rune {
 	return rune(current)
 }
 
-is_utf8 :: proc(char: rune) -> bool {
+is_ascii :: proc(char: rune) -> bool {
 	return char <= unicode.MAX_ASCII
 }
 
@@ -53,7 +53,7 @@ tokenize :: proc() -> []Token {
 		char := peek()
 		lexer.start = lexer.offset
 
-		if !is_utf8(char) {
+		if !is_ascii(char) {
 			fmt.println("Invalid character!")
 			os.exit(1)
 		}
@@ -69,10 +69,11 @@ tokenize :: proc() -> []Token {
 		case unicode.is_number(char):
 			append(&tokens, scan_number())
 		case:
-			fmt.println("Unhandled character '%s'", char)
+			fmt.printfln("Unhandled character '%r'", char)
 			os.exit(1)
 		}
 	}
-
+	
+	append(&tokens, token(.EOF))
 	return tokens[:]
 }
