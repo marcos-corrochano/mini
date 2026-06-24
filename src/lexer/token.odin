@@ -1,95 +1,95 @@
 package lexer
 
 Kind :: enum {
-	// Arithmetic operators
-	Plus,
+	// Arithmetic
+	Caret,
 	Minus,
-	Star,
-	Slash,
+	MinusEq,
 	Percentage,
-
-	// Comparison operators
-	Gt,
-	Lt,
-	GtEq,
-	LtEq,
-	Equals,
-
-	// Logical operators
-	Bang,
-	And,
-	Or,
+	Plus,
+	PlusEq,
+	Slash,
+	Star,
 
 	// Assignment
 	Assign,
 	Arrow,
 
+	// Comparison
+	Eq,
+	Gt,
+	GtEq,
+	Lt,
+	LtEq,
+	NotEq,
+
+	// Logical
+	And,
+	Bang,
+	Or,
+
+	// Increment / Decrement
+	DoubleMinus,
+	DoublePlus,
+
 	// Delimiters
-	LeftParen,
-	RightParen,
-	LeftBracket,
-	RightBracket,
 	LeftBrace,
+	LeftBracket,
+	LeftParen,
 	RightBrace,
+	RightBracket,
+	RightParen,
 
 	// Punctuation
-	Dot,
-	Comma,
-	Semi,
 	Colon,
+	Comma,
+	Dot,
+	Semi,
 
 	// Literals
-	Identifier,
-	String,
-	Rune,
-	Number,
 	Float,
+	Identifier,
+	Int,
+	Number,
 	Quote,
+	Rune,
 
 	// Types
 	Bool,
 	Byte,
+	Float32,
+	Float64,
 	Int8,
 	Int16,
 	Int32,
 	Int64,
+	String,
 	Uint8,
 	Uint16,
 	Uint32,
 	Uint64,
-	Float32,
-	Float64,
 
 	// Keywords
-	True,
-	False,
-	If,
-	Else,
-	For,
 	Break,
 	Continue,
-	When,
-	Pub,
+	Else,
+	False,
 	Fn,
+	For,
+	If,
+	Pub,
+	True,
+	When,
 
 	// Control
 	EOF,
 }
 
+@(rodata)
 Keyword := #partial [Kind]string {
-	.String   = "string",
 	.Bool     = "bool",
 	.Byte     = "byte",
-	.True     = "true",
-	.False    = "false",
-	.If       = "if",
-	.Else     = "else",
-	.For      = "for",
-	.Break    = "break",
-	.Continue = "continue",
-	.When     = "when",
-	.Pub      = "pub",
-	.Fn       = "fn",
+	.Rune     = "rune",
 	.Float32  = "f32",
 	.Float64  = "f64",
 	.Int8     = "i8",
@@ -100,7 +100,17 @@ Keyword := #partial [Kind]string {
 	.Uint16   = "u16",
 	.Uint32   = "u32",
 	.Uint64   = "u64",
-	.Rune     = "rune",
+	.Break    = "break",
+	.Continue = "continue",
+	.Else     = "else",
+	.False    = "false",
+	.Fn       = "fn",
+	.For      = "for",
+	.If       = "if",
+	.Pub      = "pub",
+	.String   = "string",
+	.True     = "true",
+	.When     = "when",
 }
 
 Token :: struct {

@@ -58,22 +58,29 @@ tokenize :: proc() -> []Token {
 			os.exit(1)
 		}
 
-		if unicode.is_space(char) {
-			next()
-			continue
+		if char == '#' {
+			for !is_done() {
+				if peek() == '\n' do break
+				next()
+			}; continue
 		}
 
 		switch {
+		case unicode.is_space(char):
+			next()
 		case unicode.is_letter(char), char == '_':
-			append(&tokens, scan_literal())
+			append(&tokens, literal())
 		case unicode.is_number(char):
-			append(&tokens, scan_number())
+			append(&tokens, number())
+		case unicode.is_graphic(char):
+			if char == '"' do append(&tokens, quote())
+			else do append(&tokens, graphic())
 		case:
 			fmt.printfln("Unhandled character '%r'", char)
 			os.exit(1)
 		}
 	}
-	
+
 	append(&tokens, token(.EOF))
 	return tokens[:]
 }
