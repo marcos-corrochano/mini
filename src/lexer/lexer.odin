@@ -54,7 +54,7 @@ tokenize :: proc() -> []Token {
 		lexer.start = lexer.offset
 
 		if !is_ascii(char) {
-			fmt.println("Invalid character!")
+			fmt.printfln("Invalid character '%r'", char)
 			os.exit(1)
 		}
 
@@ -67,6 +67,7 @@ tokenize :: proc() -> []Token {
 
 		switch {
 		case unicode.is_space(char):
+			if char == '\n' do append(&tokens, token(.EOL))
 			next()
 		case unicode.is_letter(char), char == '_':
 			append(&tokens, literal())

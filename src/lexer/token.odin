@@ -12,8 +12,8 @@ Kind :: enum {
 	Star,
 
 	// Assignment
-	Assign,
 	Arrow,
+	Assign,
 
 	// Comparison
 	Eq,
@@ -23,16 +23,11 @@ Kind :: enum {
 	LtEq,
 	NotEq,
 
-	// Logical
-	And,
-	Bang,
-	Or,
+	// Control
+	EOF,
+	EOL,
 
-	// Increment / Decrement
-	DoubleMinus,
-	DoublePlus,
-
-	// Delimiters
+	// Delimiter
 	LeftBrace,
 	LeftBracket,
 	LeftParen,
@@ -40,36 +35,11 @@ Kind :: enum {
 	RightBracket,
 	RightParen,
 
-	// Punctuation
-	Colon,
-	Comma,
-	Dot,
-	Semi,
+	// Increment
+	DoubleMinus,
+	DoublePlus,
 
-	// Literals
-	Float,
-	Identifier,
-	Int,
-	Number,
-	Quote,
-	Rune,
-
-	// Types
-	Bool,
-	Byte,
-	Float32,
-	Float64,
-	Int8,
-	Int16,
-	Int32,
-	Int64,
-	String,
-	Uint8,
-	Uint16,
-	Uint32,
-	Uint64,
-
-	// Keywords
+	// Keyword
 	Break,
 	Continue,
 	Else,
@@ -81,25 +51,40 @@ Kind :: enum {
 	True,
 	When,
 
-	// Control
-	EOF,
+	// Literal
+	FloatLiteral,
+	Identifier,
+	IntLiteral,
+	NumberLiteral,
+	StringLiteral,
+	RuneLiteral,
+
+	// Logical
+	And,
+	Bang,
+	Or,
+
+	// Punctuation
+	Colon,
+	Comma,
+	Dot,
+	Semi,
+
+	// Type
+	Bool,
+	Byte,
+	Float,
+	String,
+	Int,
+	Rune,
 }
 
-@(rodata)
 Keyword := #partial [Kind]string {
 	.Bool     = "bool",
 	.Byte     = "byte",
 	.Rune     = "rune",
-	.Float32  = "f32",
-	.Float64  = "f64",
-	.Int8     = "i8",
-	.Int16    = "i16",
-	.Int32    = "i32",
-	.Int64    = "i64",
-	.Uint8    = "u8",
-	.Uint16   = "u16",
-	.Uint32   = "u32",
-	.Uint64   = "u64",
+	.Float    = "float",
+	.Int      = "int",
 	.Break    = "break",
 	.Continue = "continue",
 	.Else     = "else",
@@ -139,4 +124,16 @@ token :: proc(kind: Kind) -> Token {
 		end = lexer.offset,
 		line = lexer.line,
 	}
+}
+
+is_type :: proc(kind: Kind) -> bool {
+	return kind >= .Bool && kind <= .Rune
+}
+
+is_keyword :: proc(kind: Kind) -> bool {
+	return kind >= .Break && kind <= .When
+}
+
+is_literal :: proc(kind: Kind) -> bool {
+	return kind >= .FloatLiteral && kind <= .RuneLiteral
 }

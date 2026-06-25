@@ -35,7 +35,7 @@ quote :: proc() -> Token {
 		if peek() == '"' do break; next()
 	}
 
-	result := token(.Quote); next()
+	result := token(.StringLiteral); next()
 	return result
 }
 
@@ -55,8 +55,8 @@ number :: proc() -> (tok: Token) {
 	lexeme := lexer.source[lexer.start:lexer.offset]
 
 	if strings.contains(lexeme, ".") {
-		tok = token(.Float)
-	} else do tok = token(.Int)
+		tok = token(.FloatLiteral)
+	} else do tok = token(.IntLiteral)
 
 	return tok
 }
